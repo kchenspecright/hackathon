@@ -1,90 +1,105 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { createInterface, Interface } from 'readline';
+import dotenv from "dotenv";
+import { MessageParam } from '@anthropic-ai/sdk/resources/messages';
+dotenv.config(); // load environment variables from .env
 
-class ConsoleApp {
+class Agent {
   private rl: Interface;
-
+  private anthropic: Anthropic;
   constructor() {
     this.rl = createInterface({
       input: process.stdin,
       output: process.stdout
     });
+     this.anthropic = new Anthropic({
+      apiKey:  process.env.ANTHROPIC_API_KEY,
+    });
   }
 
-  async start(): Promise<void> {
-    console.log('🚀 Welcome to the Node.js TypeScript Console App!');
-    console.log('Type "help" for available commands or "exit" to quit.\n');
 
-    await this.mainLoop();
-  }
+  async processQuery(query: string) {
+    /**
+     * Process a query using Claude and available tools
+     *
+     * @param query - The user's input query
+     * @returns Processed response as a string
+     */
+    const messages: MessageParam[] = [
+      {
+        role: "user",
+        content: query,
+      },
+    ];
 
-  private async mainLoop(): Promise<void> {
-    while (true) {
-      try {
-        const input = await this.prompt('> ');
-        const command = input.trim().toLowerCase();
+    // Initial Claude API call
+    const response = await this.anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1000,
+      messages,
+    //   tools: this.tools,
+    });
 
-        if (command === 'exit' || command === 'quit') {
-          console.log('👋 Goodbye!');
-          break;
-        }
+    // Process response and handle tool calls
+    const finalText = [];
+    const toolResults = [];
 
-        await this.handleCommand(command, input.trim());
-      } catch (error) {
-        console.error('❌ An error occurred:', error);
+    for (const content of response.content) {
+      if (content.type === "text") {
+        finalText.push(content.text);
+      } else if (content.type === "tool_use") {
+        // Execute tool call
+        // const toolName = content.name;
+        // const toolArgs = content.input as { [x: string]: unknown } | undefined;
+
+        // const result = await this.mcp.callTool({
+        //   name: toolName,
+        //   arguments: toolArgs,
+        // });
+        // toolResults.push(result);
+        // finalText.push(
+        //   `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`,
+        // );
+
+        // // Continue conversation with tool results
+        // messages.push({
+        //   role: "user",
+        //   content: result.content as string,
+        // });
+
+        // // Get next response from Claude
+        // const response = await this.anthropic.messages.create({
+        //   model: "claude-3-5-sonnet-20241022",
+        //   max_tokens: 1000,
+        //   messages,
+        // });
+
+        // finalText.push(
+        //   response.content[0].type === "text" ? response.content[0].text : "",
+        // );
       }
     }
 
-    this.rl.close();
+    return finalText.join("\n");
   }
+async mainLoop(): Promise<void> {
+    try {
+      console.log("\nSpec Agent Started!");
+      console.log("Type your queries or 'quit' to exit.");
 
-  private async handleCommand(command: string, fullInput: string): Promise<void> {
-    switch (command) {
-      case 'help':
-        this.showHelp();
-        break;
-      
-      case 'time':
-        console.log(`⏰ Current time: ${new Date().toLocaleString()}`);
-        break;
-      
-      case 'hello':
-        console.log('👋 Hello there! How can I help you today?');
-        break;
-      
-      case 'version':
-        console.log('📦 App version: 1.0.0');
-        break;
-      
-      case 'status':
-        console.log('✅ Application is running smoothly!');
-        break;
-      
-      default:
-        if (command.startsWith('echo ')) {
-          const message = fullInput.slice(5);
-          console.log(`📢 ${message}`);
-        } else if (command === '') {
-          // Empty command, do nothing
-        } else {
-          console.log(`❓ Unknown command: "${command}". Type "help" for available commands.`);
+      while (true) {
+        const message = await this.prompt("Query: ");
+        if (message.toLowerCase() === "quit") {
+          break;
         }
-        break;
+        const response = await this.processQuery(message);
+        console.log("\n" + response);
+      }
+    } finally {
+      this.rl.close();
     }
   }
 
-  private showHelp(): void {
-    console.log(`
-📖 Available Commands:
-  help     - Show this help message
-  time     - Show current date and time
-  hello    - Say hello
-  version  - Show application version
-  status   - Show application status
-  echo     - Echo a message (usage: echo <message>)
-  exit     - Exit the application
-  quit     - Exit the application
-`);
-  }
 
   private prompt(question: string): Promise<string> {
     return new Promise((resolve) => {
@@ -95,8 +110,8 @@ class ConsoleApp {
 
 // Main execution
 async function main(): Promise<void> {
-  const app = new ConsoleApp();
-  await app.start();
+  const app = new Agent();
+  await app.mainLoop();
 }
 
 // Handle process termination
