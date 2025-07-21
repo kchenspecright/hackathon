@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { MessageParam } from '@anthropic-ai/sdk/resources/messages';
 dotenv.config(); // load environment variables from .env
 
+const LLM_MODEL = "claude-sonnet-4-20250514"; // Default model
 class Agent {
   private rl: Interface;
   private anthropic: Anthropic;
@@ -34,7 +35,7 @@ class Agent {
 
     // Initial Claude API call
     const response = await this.anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: LLM_MODEL,
       max_tokens: 1000,
       messages,
     //   tools: this.tools,
