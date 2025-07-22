@@ -1,7 +1,10 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { createInterface, Interface } from 'readline';
+import Anthropic from "@anthropic-ai/sdk";
+import { createInterface, Interface } from "readline";
 import dotenv from "dotenv";
-import { MessageParam } from '@anthropic-ai/sdk/resources/messages';
+import { MessageParam } from "@anthropic-ai/sdk/resources/messages";
+import { tools } from "./tools"; // Import your tools
+import { setSetting } from "./db";
+
 dotenv.config(); // load environment variables from .env
 
 const LLM_MODEL = "claude-sonnet-4-20250514"; // Default model
@@ -11,13 +14,12 @@ class Agent {
   constructor() {
     this.rl = createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     });
-     this.anthropic = new Anthropic({
-      apiKey:  process.env.ANTHROPIC_API_KEY,
+    this.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
     });
   }
-
 
   async processQuery(query: string) {
     /**
@@ -34,56 +36,60 @@ class Agent {
     ];
 
     // Initial Claude API call
-    const response = await this.anthropic.messages.create({
+    const response = await this.anthropic.beta.messages.create({
       model: LLM_MODEL,
       max_tokens: 1000,
       messages,
-    //   tools: this.tools,
+      tools: tools, // Pass the tools array here
     });
 
     // Process response and handle tool calls
     const finalText = [];
-    const toolResults = [];
+    //const toolResults = [];
 
     for (const content of response.content) {
       if (content.type === "text") {
         finalText.push(content.text);
       } else if (content.type === "tool_use") {
-        // Execute tool call
-        // const toolName = content.name;
-        // const toolArgs = content.input as { [x: string]: unknown } | undefined;
+        //Execute tool call
+        const toolName = content.name;
+        const toolArgs = content.input as { [x: string]: unknown } | undefined;
 
-        // const result = await this.mcp.callTool({
-        //   name: toolName,
-        //   arguments: toolArgs,
-        // });
-        // toolResults.push(result);
-        // finalText.push(
-        //   `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`,
-        // );
-
-        // // Continue conversation with tool results
-        // messages.push({
-        //   role: "user",
-        //   content: result.content as string,
-        // });
-
-        // // Get next response from Claude
-        // const response = await this.anthropic.messages.create({
-        //   model: "claude-3-5-sonnet-20241022",
-        //   max_tokens: 1000,
-        //   messages,
-        // });
-
-        // finalText.push(
-        //   response.content[0].type === "text" ? response.content[0].text : "",
-        // );
+        switch (toolName) {
+          case "create_setting":
+            if (
+              toolArgs &&
+              typeof toolArgs === "object" &&
+              "recordType" in toolArgs &&
+              "fields" in toolArgs
+            ) {
+              const { recordType, fields } = toolArgs as {
+                recordType: string;
+                fields: { name: string; value: string }[];
+              };
+              // Call the setSetting function to create or update the setting
+              finalText.push(
+                `[Calling tool ${toolName} with args ${JSON.stringify(
+                  toolArgs
+                )}]`
+              );
+              setSetting(recordType, fields);
+              finalText.push(
+                `Setting for record type "${recordType}" created/updated successfully.`
+              );
+            }
+            break;
+          // Add more cases for other tools as needed
+          default:
+            finalText.push(`Unknown tool: ${toolName}`);
+            break;
+        }
       }
     }
 
     return finalText.join("\n");
   }
-async mainLoop(): Promise<void> {
+  async mainLoop(): Promise<void> {
     try {
       console.log("\nSpec Agent Started!");
       console.log("Type your queries or 'quit' to exit.");
@@ -101,7 +107,6 @@ async mainLoop(): Promise<void> {
     }
   }
 
-
   private prompt(question: string): Promise<string> {
     return new Promise((resolve) => {
       this.rl.question(question, resolve);
@@ -116,13 +121,13 @@ async function main(): Promise<void> {
 }
 
 // Handle process termination
-process.on('SIGINT', () => {
-  console.log('\n👋 Received SIGINT. Exiting gracefully...');
+process.on("SIGINT", () => {
+  console.log("\n👋 Received SIGINT. Exiting gracefully...");
   process.exit(0);
 });
 
 // Run the application
 main().catch((error) => {
-  console.error('💥 Fatal error:', error);
+  console.error("💥 Fatal error:", error);
   process.exit(1);
 });
