@@ -62,10 +62,12 @@ class Agent {
               toolArgs &&
               typeof toolArgs === "object" &&
               "recordType" in toolArgs &&
+              "setting_type" in toolArgs &&
               "fields" in toolArgs
             ) {
-              const { recordType, fields } = toolArgs as {
+              const { recordType, setting_type, fields } = toolArgs as {
                 recordType: string;
+                setting_type: string;
                 fields: { name: string; value: string }[];
               };
               // Call the setSetting function to create or update the setting
@@ -74,30 +76,31 @@ class Agent {
                   toolArgs
                 )}]`
               );
-              setSetting(recordType, fields);
-              toolMessage = `Setting for record type "${recordType}" created/updated successfully.`;
+              setSetting(setting_type, recordType, fields);
+              toolMessage = `${setting_type} setting for record type "${recordType}" created/updated successfully.`;
             }
             break;
           case "get_setting":
             if (
               toolArgs &&
               typeof toolArgs === "object" &&
+              "setting_type" in toolArgs &&
               "recordType" in toolArgs
             ) {
-              const { recordType } = toolArgs as { recordType: string };
+              const { recordType, setting_type } = toolArgs as { recordType: string; setting_type: string };
               // Call the getSetting function to retrieve the setting
               finalText.push(
                 `[Calling tool ${toolName} with args ${JSON.stringify(
                   toolArgs
                 )}]`
               );
-              const fields = getSetting(recordType);
+              const fields = getSetting(setting_type, recordType);
               if (fields) {
-                toolMessage = `Fields for record type "${recordType}": ${JSON.stringify(
+                toolMessage = `Fields for ${setting_type} setting and record type "${recordType}": ${JSON.stringify(
                   fields
                 )}`;
               } else {
-                toolMessage = `No settings found for record type "${recordType}".`;
+                toolMessage = `No settings found for ${setting_type} setting and record type "${recordType}".`;
               }
             }
             break;

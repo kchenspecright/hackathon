@@ -3,10 +3,14 @@ import { Tool } from "@anthropic-ai/sdk/resources/messages";
 export const tools: Tool[] = [
     {
         name: "create_setting",
-        description: "Creates a new custom supersede setting for specifications with a specific record type.",
+        description: "Creates a new setting for specifications with a specific record type.",
         input_schema: {
             type: "object",
             properties: {
+                setting_type: {
+                    type: "string",
+                    description: "The type of setting to create. for example, 'custom supersede', 'dynamic clone'."
+                },
                 recordType: {
                     type: "string",
                     description: "The type of the record to create a setting for. for example, 'bottle', 'can', or 'pallet'."
@@ -29,26 +33,30 @@ export const tools: Tool[] = [
                     }
                 }
             },
-            required: ["recordType", "fields"]
+            required: ["setting_type", "recordType", "fields"]
         }
     },
     {
         name: "get_setting",
-        description: "Retrieves the custom supersede setting for specifications with a specific record type. Returns an array of fields.",
+        description: "Retrieves setting of a specific setting type and record type. Returns an array of fields.",
         input_schema: {
             type: "object",
             properties: {
-                recordType: {
+                setting_type: {
+                    type: "string",
+                    description: "The type of setting to retrieve. for example, 'custom supersede', 'dynamic clone'."
+                },
+                recordType: {   
                     type: "string",
                     description: "The type of the record to retrieve a setting for. for example, 'bottle', 'can', or 'pallet'."
                 },
             },
-            required: ["recordType"]
+            required: ["setting_type", "recordType"]
         }
     },
     {
         name: "list_settings",
-        description: "Lists all custom supersede settings for all record types.",
+        description: "Lists all settings for all record types.",
         input_schema: {
             type: "object",
             properties: {},
