@@ -1,0 +1,4 @@
+ when I custom supersede a specification with record type of 'bottle', please set its status to 'pending'.
+ What gets updated when I custom supersede a specification with record type of 'bottle'?
+ hat are current settings for custom supersede?
+  when I custom supersede a specification with record type of 'can', please set its status to 'approved'.

@@ -18,11 +18,11 @@ export const tools: Tool[] = [
                         properties: {
                             name: {
                                 type: "string",
-                                description: "The name of the field."
+                                description: "The name of the field to update."
                             },
                             value: {
                                 type: "string",
-                                description: "The value of the field."
+                                description: "The value of the field to update to."
                             }
                         },
                         required: ["name", "value"]
@@ -44,6 +44,15 @@ export const tools: Tool[] = [
                 },
             },
             required: ["recordType"]
+        }
+    },
+    {
+        name: "list_settings",
+        description: "Lists all custom supersede settings for all record types.",
+        input_schema: {
+            type: "object",
+            properties: {},
+            required: []
         }
     }
 ];

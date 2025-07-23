@@ -54,6 +54,7 @@ class Agent {
         //Execute tool call
         const toolName = content.name;
         const toolArgs = content.input as { [x: string]: unknown } | undefined;
+        let toolMessage: string = "";
 
         switch (toolName) {
           case "create_setting":
@@ -74,9 +75,7 @@ class Agent {
                 )}]`
               );
               setSetting(recordType, fields);
-              finalText.push(
-                `Setting for record type "${recordType}" created/updated successfully.`
-              );
+              toolMessage = `Setting for record type "${recordType}" created/updated successfully.`;
             }
             break;
           case "get_setting":
@@ -94,15 +93,11 @@ class Agent {
               );
               const fields = getSetting(recordType);
               if (fields) {
-                finalText.push(
-                  `Fields for record type "${recordType}": ${JSON.stringify(
-                    fields
-                  )}`
-                );
+                toolMessage = `Fields for record type "${recordType}": ${JSON.stringify(
+                  fields
+                )}`;
               } else {
-                finalText.push(
-                  `No settings found for record type "${recordType}".`
-                );
+                toolMessage = `No settings found for record type "${recordType}".`;
               }
             }
             break;
@@ -111,19 +106,37 @@ class Agent {
             finalText.push(`[Calling tool ${toolName}]`);
             const allSettings = listSettings();
             if (allSettings) {
-              finalText.push(`All settings: ${JSON.stringify(allSettings)}`);
+              toolMessage = `All settings: ${JSON.stringify(allSettings)}`;
             } else {
-              finalText.push(`No settings found.`);
+              toolMessage = "No settings found.";
             }
             break;
           default:
             finalText.push(`Unknown tool: ${toolName}`);
             break;
         }
+        if (toolMessage) {
+          // Continue conversation with tool results
+          messages.push({
+            role: "user",
+            content: toolMessage,
+          });
+
+          // Get next response from Claude
+          const response = await this.anthropic.messages.create({
+            model: LLM_MODEL,
+            max_tokens: 1000,
+            messages,
+          });
+
+          finalText.push(
+            response.content[0].type === "text" ? response.content[0].text : ""
+          );
+        }
       }
     }
 
-    return finalText.join("\n");
+    return finalText.join("\n") + "\n\n";
   }
   async mainLoop(): Promise<void> {
     try {
@@ -136,7 +149,7 @@ class Agent {
           break;
         }
         const response = await this.processQuery(message);
-        console.log("\n" + response);
+        console.log('\x1b[32m%s\x1b[0m', "\n" + response);
       }
     } finally {
       this.rl.close();
