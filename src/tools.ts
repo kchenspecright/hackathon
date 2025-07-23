@@ -3,7 +3,7 @@ import { Tool } from "@anthropic-ai/sdk/resources/messages";
 export const tools: Tool[] = [
     {
         name: "create_setting",
-        description: "Creates a new setting for specifications with a specific record type.",
+        description: "Creates a new setting for specifications with a specific record type. Setting type can be 'custom supersede', 'dynamic clone', etc. The setting specifies the fields to be updated.",
         input_schema: {
             type: "object",
             properties: {
@@ -38,7 +38,7 @@ export const tools: Tool[] = [
     },
     {
         name: "get_setting",
-        description: "Retrieves setting of a specific setting type and record type. Returns an array of fields.",
+        description: "Retrieves setting of a specific setting type and record type. Returns an array of fields to be updated for a specific setting type and record type.",
         input_schema: {
             type: "object",
             properties: {
@@ -56,7 +56,7 @@ export const tools: Tool[] = [
     },
     {
         name: "list_settings",
-        description: "Lists all settings for all record types.",
+        description: "Lists settings for setting types and all record types. Returns an array of settings. Each setting contains the setting type, record type, and fields to be updated.",
         input_schema: {
             type: "object",
             properties: {},

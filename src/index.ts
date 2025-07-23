@@ -121,8 +121,16 @@ class Agent {
         if (toolMessage) {
           // Continue conversation with tool results
           messages.push({
+            role: "assistant",
+            content: [content],
+          });
+          messages.push({
             role: "user",
-            content: toolMessage,
+            content: [{
+              type: "tool_result",
+              tool_use_id: content.id, // Use the same ID for tool use
+              content: toolMessage
+            }]
           });
 
           // Get next response from Claude
