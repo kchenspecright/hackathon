@@ -3,7 +3,7 @@ import { createInterface, Interface } from "readline";
 import dotenv from "dotenv";
 import { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { tools } from "./tools"; // Import your tools
-import { setSetting } from "./db";
+import { getSetting, listSettings, setSetting } from "./db";
 
 dotenv.config(); // load environment variables from .env
 
@@ -79,7 +79,43 @@ class Agent {
               );
             }
             break;
-          // Add more cases for other tools as needed
+          case "get_setting":
+            if (
+              toolArgs &&
+              typeof toolArgs === "object" &&
+              "recordType" in toolArgs
+            ) {
+              const { recordType } = toolArgs as { recordType: string };
+              // Call the getSetting function to retrieve the setting
+              finalText.push(
+                `[Calling tool ${toolName} with args ${JSON.stringify(
+                  toolArgs
+                )}]`
+              );
+              const fields = getSetting(recordType);
+              if (fields) {
+                finalText.push(
+                  `Fields for record type "${recordType}": ${JSON.stringify(
+                    fields
+                  )}`
+                );
+              } else {
+                finalText.push(
+                  `No settings found for record type "${recordType}".`
+                );
+              }
+            }
+            break;
+          case "list_settings":
+            // Call the listSettings function to retrieve all settings
+            finalText.push(`[Calling tool ${toolName}]`);
+            const allSettings = listSettings();
+            if (allSettings) {
+              finalText.push(`All settings: ${JSON.stringify(allSettings)}`);
+            } else {
+              finalText.push(`No settings found.`);
+            }
+            break;
           default:
             finalText.push(`Unknown tool: ${toolName}`);
             break;

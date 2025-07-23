@@ -20,3 +20,6 @@ export function setSetting(recordType: string, fields: Field[]): void {
     settings.push({ recordType, fields });
   }
 }
+export function listSettings(): Setting[] {
+  return settings;
+}
