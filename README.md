@@ -32,6 +32,10 @@ npm run build
 ```bash
 npm start
 ```
+4. Run Apex Class to LLM Schema 
+```bash
+npm run apex2Model
+```
 
 ### Development
 
@@ -56,16 +60,6 @@ npm run watch
 - `npm run clean` - Remove compiled files
 
 ## Commands
-
-Once the application is running, you can use these commands:
-
-- `help` - Show available commands
-- `time` - Show current date and time
-- `hello` - Say hello
-- `version` - Show application version
-- `status` - Show application status
-- `echo <message>` - Echo a message
-- `exit` or `quit` - Exit the application
 
 ## Project Structure
 
