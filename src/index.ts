@@ -53,7 +53,11 @@ class Agent {
     });
 
     // Process response and handle tool calls
-    const finalText = [];
+    const finalText: string[] = [];
+    await this.processResponse(response, messages, finalText);
+    return finalText.join("\n") + "\n\n";
+  }
+  async processResponse(response: Anthropic.Beta.BetaMessage, messages: MessageParam[], finalText: string[]){
     const toolResults = [];
     const thinkingBlocks = [];
     const toolUseBlocks = [];
@@ -181,12 +185,8 @@ class Agent {
         messages,
       });
 
-      finalText.push(
-        response.content[0].type === "text" ? response.content[0].text : ""
-      );
+      this.processResponse(response, messages, finalText);
     }
-
-    return finalText.join("\n") + "\n\n";
   }
   async mainLoop(): Promise<void> {
     try {
