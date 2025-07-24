@@ -73,5 +73,5 @@ export function createSpecification(data: {
   description: string;
   status: string;
 }) {
-  console.log("Creating specification with data:", data);
+  return data;
 }

@@ -3,3 +3,4 @@
  what are current settings for custom supersede?
  when I custom supersede a specification with record type of 'can', please set its status to 'approved'.
 when I dynamic clone a specification with record type of 'pallet', please set its status to 'pending'.
+I want to dynamic clone specification 123.

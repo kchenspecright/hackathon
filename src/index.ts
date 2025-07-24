@@ -3,7 +3,13 @@ import { createInterface, Interface } from "readline";
 import dotenv from "dotenv";
 import { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { tools } from "./tools"; // Import your tools
-import { createSpecification, getSetting, getSpecification, listSettings, setSetting } from "./db";
+import {
+  createSpecification,
+  getSetting,
+  getSpecification,
+  listSettings,
+  setSetting,
+} from "./db";
 
 dotenv.config(); // load environment variables from .env
 // Todo:
@@ -26,12 +32,10 @@ class Agent {
   }
 
   async processQuery(query: string) {
-    /**
-     * Process a query using Claude and available tools
-     *
-     * @param query - The user's input query
-     * @returns Processed response as a string
-     */
+    if (!query) {
+      return "Please provide a query.";
+    }
+    
     const messages: MessageParam[] = [
       {
         role: "user",
@@ -47,7 +51,7 @@ class Agent {
         budget_tokens: 10000,
       },
       model: LLM_MODEL,
-      max_tokens: 1000,
+      max_tokens: 10000,
       messages,
       tools: tools, // Pass the tools array here
     });
@@ -57,7 +61,11 @@ class Agent {
     await this.processResponse(response, messages, finalText);
     return finalText.join("\n") + "\n\n";
   }
-  async processResponse(response: Anthropic.Beta.BetaMessage, messages: MessageParam[], finalText: string[]){
+  async processResponse(
+    response: Anthropic.Beta.BetaMessage,
+    messages: MessageParam[],
+    finalText: string[]
+  ) {
     const toolResults = [];
     const thinkingBlocks = [];
     const toolUseBlocks = [];
@@ -152,8 +160,12 @@ class Agent {
               content: toolResultContent,
             });
             break;
-            case "get_specification_by_id":
-            if (toolArgs && typeof toolArgs === "object" && "specification_id" in toolArgs) {
+          case "get_specification_by_id":
+            if (
+              toolArgs &&
+              typeof toolArgs === "object" &&
+              "specification_id" in toolArgs
+            ) {
               const { specification_id } = toolArgs as {
                 specification_id: string;
               };
@@ -172,6 +184,7 @@ class Agent {
               } else {
                 toolResultContent = `No specification found for ID "${specification_id}".`;
               }
+
               toolResults.push({
                 type: "tool_result",
                 tool_use_id: content.id,
@@ -180,7 +193,11 @@ class Agent {
             }
             break;
           case "create_specification":
-            if (toolArgs && typeof toolArgs === "object" && "data" in toolArgs) {
+            if (
+              toolArgs &&
+              typeof toolArgs === "object" &&
+              "data" in toolArgs
+            ) {
               const { data } = toolArgs as {
                 data: { name: string; description: string; status: string };
               };
@@ -190,13 +207,11 @@ class Agent {
                   toolArgs
                 )}]`
               );
-              const newSpecification = createSpecification(data);
+              createSpecification(data);
               toolResults.push({
                 type: "tool_result",
                 tool_use_id: content.id,
-                content: `Created new specification: ${JSON.stringify(
-                  newSpecification
-                )}`,
+                content: `successfully created new specification`,
               });
             }
             break;
@@ -229,11 +244,12 @@ class Agent {
           budget_tokens: 10000,
         },
         model: LLM_MODEL,
-        max_tokens: 1000,
+        max_tokens: 10000,
         messages,
+        tools: tools, // Pass the tools array here
       });
 
-      this.processResponse(response, messages, finalText);
+      await this.processResponse(response, messages, finalText);
     }
   }
   async mainLoop(): Promise<void> {
