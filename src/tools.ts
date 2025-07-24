@@ -62,5 +62,51 @@ export const tools: Tool[] = [
             properties: {},
             required: []
         }
+    },
+    {
+        name: "get_specification_by_id",
+        description: "Retrieves a specification by its ID. Returns the specification details including its ID, name, record type, description and status.",
+        input_schema: {
+            type: "object",
+            properties: {
+                specification_id: {
+                    type: "string",
+                    description: "The ID of the specification to retrieve."
+                }
+            },
+            required: ["specification_id"]
+        }
+    },
+    {
+        name: "create_specification",
+        description: "Creates a new specification with specification data. The specification data includes the name, record type, description, and status of the specification.  This tool could used to dynamic clone or custom supersede.",
+        input_schema: {
+            type: "object",
+            properties: {
+                data: {
+                    type: "object",
+                    properties: {
+                        name: {
+                            type: "string",
+                            description: "The name of the specification."
+                        },
+                        description: {
+                            type: "string",
+                            description: "The description of the specification."
+                        },
+                        status: {
+                            type: "string",
+                            description: "The status of the specification."
+                        },
+                        record_type: {
+                            type: "string",
+                            description: "The type of the record for the specification. For example, 'bottle', 'can', or 'pallet'."
+                        }
+                    },
+                    required: ["name", "description", "status", "record_type"]
+                }
+            },
+            required: ["data"]
+        }
     }
 ];

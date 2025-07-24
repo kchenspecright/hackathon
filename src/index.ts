@@ -3,7 +3,7 @@ import { createInterface, Interface } from "readline";
 import dotenv from "dotenv";
 import { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { tools } from "./tools"; // Import your tools
-import { getSetting, listSettings, setSetting } from "./db";
+import { createSpecification, getSetting, getSpecification, listSettings, setSetting } from "./db";
 
 dotenv.config(); // load environment variables from .env
 // Todo:
@@ -151,6 +151,54 @@ class Agent {
               tool_use_id: content.id,
               content: toolResultContent,
             });
+            break;
+            case "get_specification_by_id":
+            if (toolArgs && typeof toolArgs === "object" && "specification_id" in toolArgs) {
+              const { specification_id } = toolArgs as {
+                specification_id: string;
+              };
+              // Call the getSpecification function to retrieve the specification
+              finalText.push(
+                `[Calling tool ${toolName} with args ${JSON.stringify(
+                  toolArgs
+                )}]`
+              );
+              const specification = getSpecification(specification_id);
+              let toolResultContent: string;
+              if (specification) {
+                toolResultContent = `Specification details for ID "${specification_id}": ${JSON.stringify(
+                  specification
+                )}`;
+              } else {
+                toolResultContent = `No specification found for ID "${specification_id}".`;
+              }
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: content.id,
+                content: toolResultContent,
+              });
+            }
+            break;
+          case "create_specification":
+            if (toolArgs && typeof toolArgs === "object" && "data" in toolArgs) {
+              const { data } = toolArgs as {
+                data: { name: string; description: string; status: string };
+              };
+              // Call the createSpecification function to create a new specification
+              finalText.push(
+                `[Calling tool ${toolName} with args ${JSON.stringify(
+                  toolArgs
+                )}]`
+              );
+              const newSpecification = createSpecification(data);
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: content.id,
+                content: `Created new specification: ${JSON.stringify(
+                  newSpecification
+                )}`,
+              });
+            }
             break;
           default:
             finalText.push(`Unknown tool: ${toolName}`);
