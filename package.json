@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "apex2Model": "ts-node src/apex2Model.ts",
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch",
     "clean": "rm -rf dist",

@@ -16,28 +16,7 @@ export function getSetting(
   const setting = settings.find(
     (s) => s.setting_type === setting_type && s.recordType === recordType
   );
-  const SFJson = [
-    {
-      wrapperTypeName:
-        setting_type === "custom supersede"
-          ? "CustomSupersedeDefaultFieldWrapper"
-          : "DynamicCloneDefaultFieldWrapper",
-      wrapperTypeLabel:  setting_type === "custom supersede" ? "Custom Supersede Default Field Values" : "Dynamic Clone Default Field Values",
-      name: "Specification Status  - New Record",
-      masterLabel: null,
-      isCustomSettingType: true,
-      developerName: null,
-      targetRecord: "New Record",
-      recordTypeApiName: recordType,
-      objectApiName: "specright__Specification__c",
-      isActive: true,
-      fieldApiName:  "specright__Status__c",
-      defaultFieldValue: "New",
-      copyName: false,
-    },
-  ];
-
-  console.log("SFJson", SFJson);
+ 
   return setting ? setting.fields : undefined;
 }
 export function setSetting(
@@ -53,6 +32,28 @@ export function setSetting(
   } else {
     settings.push({ setting_type, recordType, fields });
   }
+   const SFJson = [
+    {
+      wrapperTypeName:
+        setting_type === "custom supersede"
+          ? "CustomSupersedeDefaultFieldWrapper"
+          : "DynamicCloneDefaultFieldsWrapper",
+      wrapperTypeLabel:  setting_type === "custom supersede" ? "Custom Supersede Default Field Values" : "Dynamic Clone Default Field Values",
+      name: "Specification Status  - New Record",
+      masterLabel: null,
+      isCustomSettingType: true,
+      developerName: null,
+      targetRecord: "New Record",
+      recordTypeApiName: recordType,
+      objectApiName: "specright__Specification__c",
+      isActive: true,
+      fieldApiName:  "specright__Status__c",
+      defaultFieldValue: "New",
+      copyName: false,
+    },
+  ];
+
+  console.log("SFJson", JSON.stringify(SFJson, null, 2));
 }
 export function listSettings(): Setting[] {
   return settings;
