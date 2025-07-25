@@ -78,6 +78,15 @@ export const tools: Tool[] = [
         }
     },
     {
+        name: "list_specifications",
+        description: "Lists all specifications. Returns an array of specifications with their ID, name, record type, description and status.",
+        input_schema: {
+            type: "object",
+            properties: {},
+            required: []
+        }
+    },
+    {
         name: "create_specification",
         description: "Creates a new specification with specification data. The specification data includes the name, record type, description, and status of the specification.  This tool could used to dynamic clone or custom supersede.",
         input_schema: {

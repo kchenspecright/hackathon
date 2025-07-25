@@ -8,6 +8,7 @@ import {
   getSetting,
   getSpecification,
   listSettings,
+  listSpecifications,
   setSetting,
 } from "./db";
 
@@ -35,7 +36,7 @@ class Agent {
     if (!query) {
       return "Please provide a query.";
     }
-    
+
     const messages: MessageParam[] = [
       {
         role: "user",
@@ -199,7 +200,7 @@ class Agent {
               "data" in toolArgs
             ) {
               const { data } = toolArgs as {
-                data: { name: string; description: string; status: string };
+                data: { name: string; description: string; status: string; record_type: string };
               };
               // Call the createSpecification function to create a new specification
               finalText.push(
@@ -212,6 +213,26 @@ class Agent {
                 type: "tool_result",
                 tool_use_id: content.id,
                 content: `successfully created new specification`,
+              });
+            }
+            break;
+          case "list_specifications":
+            // Call the listSpecifications function to retrieve all specifications
+            {
+              finalText.push(`[Calling tool ${toolName}]`);
+              const allSpecifications = listSpecifications();
+              let toolResultContent: string;
+              if (allSpecifications) {
+                toolResultContent = `All specifications: ${JSON.stringify(
+                  allSpecifications
+                )}`;
+              } else {
+                toolResultContent = "No specifications found.";
+              }
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: content.id,
+                content: toolResultContent,
               });
             }
             break;

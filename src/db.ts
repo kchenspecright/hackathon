@@ -59,19 +59,32 @@ export function listSettings(): Setting[] {
   return settings;
 }
 
-export function getSpecification(specificationId: string) {
-  return {
-    id: specificationId,
-    name: "Sample Specification",
-    description: "This is a sample specification for demonstration purposes.",
-    record_type: "pallet",
-    status: "approved",
-  };
-}
-export function createSpecification(data: {
+export type Specification = {
+  id?: string;
   name: string;
   description: string;
+  record_type: string;
   status: string;
-}) {
-  return data;
+};
+
+const specifications: Specification[] = [];
+export function listSpecifications(): Specification[] {
+  return specifications;
+}
+
+export function getSpecification(specificationId: string) {
+  return specifications.find(
+    (spec) => spec.id === specificationId
+  );
+}
+export function createSpecification(data: Specification) {
+  const newSpecification = {
+    id: "SPEC-" + (specifications.length + 1).toString(),
+    name: data.name,
+    description: data.description,
+    record_type: data.record_type,
+    status: data.status,
+  };
+  specifications.push(newSpecification);
+  return newSpecification;
 }
