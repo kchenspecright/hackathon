@@ -96,11 +96,11 @@ class Agent {
                 fields: { name: string; value: string }[];
               };
               // Call the setSetting function to create or update the setting
-              finalText.push(
-                `[Calling tool ${toolName} with args ${JSON.stringify(
-                  toolArgs
-                )}]`
-              );
+              // finalText.push(
+              //   `[Calling tool ${toolName} with args ${JSON.stringify(
+              //     toolArgs
+              //   )}]`
+              // );
               setSetting(setting_type, recordType, fields);
               const toolResultContent = `${setting_type} setting for record type "${recordType}" created/updated successfully.`;
               toolResults.push({
@@ -122,11 +122,11 @@ class Agent {
                 setting_type: string;
               };
               // Call the getSetting function to retrieve the setting
-              finalText.push(
-                `[Calling tool ${toolName} with args ${JSON.stringify(
-                  toolArgs
-                )}]`
-              );
+              // finalText.push(
+              //   `[Calling tool ${toolName} with args ${JSON.stringify(
+              //     toolArgs
+              //   )}]`
+              // );
               const fields = getSetting(setting_type, recordType);
               let toolResultContent: string;
               if (fields) {
@@ -145,7 +145,7 @@ class Agent {
             break;
           case "list_settings":
             // Call the listSettings function to retrieve all settings
-            finalText.push(`[Calling tool ${toolName}]`);
+            //finalText.push(`[Calling tool ${toolName}]`);
             const allSettings = listSettings();
             let toolResultContent: string;
             if (allSettings) {
@@ -171,11 +171,11 @@ class Agent {
                 specification_id: string;
               };
               // Call the getSpecification function to retrieve the specification
-              finalText.push(
-                `[Calling tool ${toolName} with args ${JSON.stringify(
-                  toolArgs
-                )}]`
-              );
+              // finalText.push(
+              //   `[Calling tool ${toolName} with args ${JSON.stringify(
+              //     toolArgs
+              //   )}]`
+              // );
               const specification = getSpecification(specification_id);
               let toolResultContent: string;
               if (specification) {
@@ -203,11 +203,11 @@ class Agent {
                 data: { name: string; description: string; status: string; record_type: string };
               };
               // Call the createSpecification function to create a new specification
-              finalText.push(
-                `[Calling tool ${toolName} with args ${JSON.stringify(
-                  toolArgs
-                )}]`
-              );
+              // finalText.push(
+              //   `[Calling tool ${toolName} with args ${JSON.stringify(
+              //     toolArgs
+              //   )}]`
+              // );
               createSpecification(data);
               toolResults.push({
                 type: "tool_result",
@@ -219,7 +219,7 @@ class Agent {
           case "list_specifications":
             // Call the listSpecifications function to retrieve all specifications
             {
-              finalText.push(`[Calling tool ${toolName}]`);
+              //finalText.push(`[Calling tool ${toolName}]`);
               const allSpecifications = listSpecifications();
               let toolResultContent: string;
               if (allSpecifications) {
@@ -257,6 +257,7 @@ class Agent {
         })),
       });
 
+      finalText.push("\n");
       // Get next response from Claude
       const response = await this.anthropic.beta.messages.create({
         betas: BETA, // Enable beta features
